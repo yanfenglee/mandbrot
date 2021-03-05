@@ -4,6 +4,7 @@ use nannou::prelude::*;
 //use nannou::wgpu::{TextureFormat, Device, Color};
 use nannou::image::{DynamicImage, RgbImage, Rgb};
 use num::Complex;
+use std::borrow::BorrowMut;
 
 static W: u32 = 512;
 static H: u32 = 512;
@@ -98,6 +99,8 @@ fn event(app: &App, model: &mut Model, event: WindowEvent) {
 
             let x0 = model.pt.x as f64 / W as f64 * 2.0;
             let y0 = model.pt.y as f64 / H as f64 * 2.0;
+
+            model.texture.borrow_mut().set()
 
             model.texture = gen_tex(app, x0, y0, model.scale.x, model.scale.y);
         }
