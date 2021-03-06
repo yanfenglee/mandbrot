@@ -53,7 +53,7 @@ impl State {
                 push_constant_ranges: &[],
             });
 
-        // create shader and pipeline
+        // create  shader and pipeline
         let vs_module = device.create_shader_module(&wgpu::include_spirv!("shader/shader.vert.spv"));
         let fs_module = device.create_shader_module(&wgpu::include_spirv!("shader/shader.frag.spv"));
 
@@ -76,10 +76,10 @@ impl State {
                 }],
             }),
             primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList, // 1.
+                topology: wgpu::PrimitiveTopology::TriangleStrip, // 1.
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw, // 2.
-                cull_mode: wgpu::CullMode::Back,
+                cull_mode: wgpu::CullMode::None,
                 // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
                 polygon_mode: wgpu::PolygonMode::Fill,
             },
@@ -174,7 +174,8 @@ impl State {
             });
 
             render_pass.set_pipeline(&self.render_pipeline); // 2.
-            render_pass.draw(0..3, 0..1); // 3.
+            render_pass.draw(0..4, 0..1); // 3.
+
         }
 
         // submit will accept anything that implements IntoIter

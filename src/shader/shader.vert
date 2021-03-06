@@ -1,10 +1,11 @@
 // shader.vert
 #version 450
 
-const vec2 positions[3] = vec2[3](
-    vec2(0.0, 0.5),
-    vec2(-0.5, -0.5),
-    vec2(0.5, -0.5)
+const vec2 positions[4] = vec2[4](
+    vec2(-1, 1),
+    vec2(-1, -1),
+    vec2(1, 1),
+    vec2(1, -1)
 );
 
 void main() {
