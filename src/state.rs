@@ -54,8 +54,8 @@ impl State {
             });
 
         // create shader and pipeline
-        let vs_module = device.create_shader_module(&wgpu::include_spirv!("shader.vert.spv"));
-        let fs_module = device.create_shader_module(&wgpu::include_spirv!("shader.frag.spv"));
+        let vs_module = device.create_shader_module(&wgpu::include_spirv!("shader/shader.vert.spv"));
+        let fs_module = device.create_shader_module(&wgpu::include_spirv!("shader/shader.frag.spv"));
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Render Pipeline"),
