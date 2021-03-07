@@ -1,7 +1,10 @@
+use log::info;
 use winit::window::Window;
 use winit::event::WindowEvent;
-use wgpu::Label;
+use wgpu::{BufferDescriptor, BufferUsage, Label, util::DeviceExt};
 use futures::executor::block_on;
+
+use crate::setting::Setting;
 
 pub struct State {
     pub surface: wgpu::Surface,
@@ -11,6 +14,9 @@ pub struct State {
     pub swap_chain: wgpu::SwapChain,
     pub size: winit::dpi::PhysicalSize<u32>,
     pub render_pipeline: wgpu::RenderPipeline,
+    pub setting_bind_group: wgpu::BindGroup,
+    pub setting: Setting,
+    pub setting_buffer: wgpu::Buffer,
 }
 
 impl State {
@@ -91,6 +97,44 @@ impl State {
             },
         });
 
+        // create setting buffer
+        let setting = Setting::new();
+
+        let setting_buffer = device.create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("setting Buffer"),
+                contents: bytemuck::cast_slice(&[setting]),
+                usage: wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+            }
+        );
+
+        let setting_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }
+            ],
+            label: Some("setting_bind_group_layout"),
+        });
+
+        let setting_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &setting_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: setting_buffer.as_entire_binding(),
+                }
+            ],
+            label: Some("setting_bind_group"),
+        });
+
         Self {
             surface,
             device,
@@ -99,6 +143,9 @@ impl State {
             swap_chain,
             size,
             render_pipeline,
+            setting_bind_group,
+            setting,
+            setting_buffer,
         }
     }
 
@@ -137,7 +184,7 @@ impl State {
     }
 
     pub fn update(&mut self) {
-
+        self.queue.write_buffer(&self.setting_buffer, 0, bytemuck::cast_slice(&[self.setting]));
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
@@ -174,6 +221,7 @@ impl State {
             });
 
             render_pass.set_pipeline(&self.render_pipeline); // 2.
+            render_pass.set_bind_group(0, &self.setting_bind_group, &[]);
             render_pass.draw(0..4, 0..1); // 3.
 
         }
