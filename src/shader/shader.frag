@@ -6,14 +6,13 @@ layout(location=0) out vec4 f_color;
 
 layout(set = 0, binding = 0)
 uniform Setting {
-    //float centerx;
-    //float centery;
-    float scale2;
+    float centerx;
+    float centery;
+    float scale;
 };
 
 const vec2 resolution = vec2(1024,1024);
-vec2 center = vec2(0.0, 0.0);
-float scale = 1.0;
+vec2 center = vec2(centerx, centery);
 
 vec2 f(vec2 z, vec2 c) {
 	return vec2(z.x*z.x-z.y*z.y, 2*z.x*z.y) + c;
