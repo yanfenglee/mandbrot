@@ -1,5 +1,5 @@
 use log::info;
-use winit::window::Window;
+use winit::{event::{ElementState, KeyboardInput, MouseButton, VirtualKeyCode}, window::Window};
 use winit::event::WindowEvent;
 use wgpu::{BufferDescriptor, BufferUsage, Label, util::DeviceExt};
 use futures::executor::block_on;
@@ -17,6 +17,14 @@ pub struct State {
     pub setting_bind_group: wgpu::BindGroup,
     pub setting: Setting,
     pub setting_buffer: wgpu::Buffer,
+
+    // mouse pressed flag
+    pub mouse_pressed: bool,
+    pub mouse_pressed_pos: Option<(f64, f64)>,
+    pub mouse_pos: (f64, f64),
+
+    // center pos when mouse pressed
+    pub prev_center: (f32, f32),
 }
 
 impl State {
@@ -146,6 +154,10 @@ impl State {
             setting_bind_group,
             setting,
             setting_buffer,
+            mouse_pressed: false,
+            mouse_pressed_pos: None,
+            mouse_pos: (0.0,0.0),
+            prev_center: (0.0,0.0),
         }
     }
 
@@ -162,29 +174,68 @@ impl State {
 
     pub fn input(&mut self, event: &WindowEvent) -> bool {
 
-        // match event {
-        //     // ...
-        //
-        // } if window_id == window.id() => if !state.input(event) {
-        //     match event {
-        //         // ...
-        //
-        //         WindowEvent::Resized(physical_size) => {
-        //             state.resize(*physical_size);
-        //         }
-        //         WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-        //             // new_inner_size is &&mut so we have to dereference it twice
-        //             state.resize(**new_inner_size);
-        //         }
-        //         // ...
-        //     }
-        // }
+        match event {
+    
+            WindowEvent::MouseInput{state: ElementState::Pressed,button: MouseButton::Left, ..} => {
+                //self.setting.scale *= 0.8;
+                self.mouse_pressed = true;
+                self.mouse_pressed_pos = Some(self.mouse_pos);
+                self.prev_center = (self.setting.centerx, self.setting.centery);
+
+                println!("press button!!!! {:?}", self.mouse_pressed_pos);
+            }
+
+            WindowEvent::MouseInput{state: ElementState::Released,button: MouseButton::Left, ..} => {
+                self.mouse_pressed = false;
+                self.mouse_pressed_pos = None;
+                println!("release button!!!!==================");
+            }
+
+            // key pressed
+            WindowEvent::KeyboardInput{input,..} => match input {
+                
+                KeyboardInput {
+                    state: ElementState::Pressed,
+                    virtual_keycode,
+                    ..
+                } => {
+                    //println!("key pressed: {:?}", input);
+
+                    match virtual_keycode {
+                        Some(VirtualKeyCode::Minus) => {
+                            self.setting.scale *= 1.2;
+                        }
+                        Some(VirtualKeyCode::Equals) => {
+                            self.setting.scale *= 0.8;
+                        }
+
+                        _ => {}
+                    } 
+                    
+                }
+
+                _ => {}
+                
+            }
+
+            WindowEvent::CursorMoved{position,..} => {
+                self.mouse_pos = (position.x, position.y);
+                if let Some(pos) = self.mouse_pressed_pos {
+                    let (dx,dy) = (self.mouse_pos.0 - pos.0, self.mouse_pos.1 - pos.1);
+                    self.setting.centerx = self.prev_center.0-dx as f32;
+                    self.setting.centery = self.prev_center.1-dy as f32;
+                }
+                //println!("mouse move,{},{}", position.x, position.y);
+            }
+
+            _ => {}
+        }
+
 
         return false;
     }
 
     pub fn update(&mut self) {
-        self.setting.scale = 2.0;
         self.queue.write_buffer(&self.setting_buffer, 0, bytemuck::cast_slice(&[self.setting]));
     }
 

@@ -12,7 +12,7 @@ uniform Setting {
 };
 
 const vec2 resolution = vec2(1024,1024);
-vec2 center = vec2(centerx, centery);
+vec2 center = vec2(centerx-512.0, centery-512.0)/1024.0;
 
 vec2 f(vec2 z, vec2 c) {
 	return vec2(z.x*z.x-z.y*z.y, 2*z.x*z.y) + c;
@@ -23,7 +23,7 @@ vec2 f(vec2 z, vec2 c) {
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
-    vec2 c = center + uv * scale;
+    vec2 c = (center + uv) * scale;
   
     vec2 z = vec2(0.0);
     bool diverge = false;

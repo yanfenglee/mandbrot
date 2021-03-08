@@ -13,8 +13,8 @@ pub struct Setting {
 impl Setting {
     pub fn new() -> Self {
         Self {
-            centerx: 0.0,
-            centery: 0.0,
+            centerx: 512.0,
+            centery: 512.0,
             scale: 1.0,
         }
     }
