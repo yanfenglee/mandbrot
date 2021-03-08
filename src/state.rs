@@ -181,14 +181,11 @@ impl State {
                 self.mouse_pressed = true;
                 self.mouse_pressed_pos = Some(self.mouse_pos);
                 self.prev_center = (self.setting.centerx, self.setting.centery);
-
-                println!("press button!!!! {:?}", self.mouse_pressed_pos);
             }
 
             WindowEvent::MouseInput{state: ElementState::Released,button: MouseButton::Left, ..} => {
                 self.mouse_pressed = false;
                 self.mouse_pressed_pos = None;
-                println!("release button!!!!==================");
             }
 
             // key pressed
